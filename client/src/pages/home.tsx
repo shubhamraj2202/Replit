@@ -63,10 +63,12 @@ export default function Home() {
   });
 
   const handleImageCapture = (file: File) => {
+    console.log('Camera file selected:', file);
     analyzeMutation.mutate(file);
   };
 
   const handleImageSelect = (file: File) => {
+    console.log('Gallery file selected:', file);
     analyzeMutation.mutate(file);
   };
 
