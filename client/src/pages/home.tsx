@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Clock, Camera, Images, Leaf, Lightbulb, ChevronRight } from 'lucide-react';
@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { IOSStatusBar } from '@/components/ui/ios-status-bar';
 import { LoadingModal } from '@/components/ui/loading-modal';
-import { useCamera } from '@/hooks/use-camera';
 import { analyzeImage, getRecentScans, type ScanResult } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,7 +16,20 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { openCamera, openGallery, CameraInput, GalleryInput } = useCamera();
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const openCamera = () => {
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const openGallery = () => {
+    if (galleryInputRef.current) {
+      galleryInputRef.current.click();
+    }
+  };
 
   // Fetch recent scans
   const { data: recentScans = [], isLoading } = useQuery({
