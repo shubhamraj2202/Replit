@@ -228,33 +228,33 @@ export default function Home() {
       </div>
 
       {/* Hidden file inputs */}
-      <div className="hidden">
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              handleImageCapture(file);
-              e.target.value = '';
-            }
-          }}
-        />
-        <input
-          ref={galleryInputRef}
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              handleImageSelect(file);
-              e.target.value = '';
-            }
-          }}
-        />
-      </div>
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleImageCapture(file);
+            e.target.value = '';
+          }
+        }}
+      />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleImageSelect(file);
+            e.target.value = '';
+          }
+        }}
+      />
 
       {/* Loading Modal */}
       <LoadingModal isOpen={isAnalyzing} />
