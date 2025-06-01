@@ -231,15 +231,21 @@ export default function NewSession() {
           </CardContent>
         </Card>
 
-        {/* Start Session Button */}
-        <Button
-          onClick={handleSubmit}
-          disabled={createSessionMutation.isPending}
-          className="w-full py-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
-        >
-          <Users className="w-5 h-5 mr-2" />
-          Start Mediation Session
-        </Button>
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleSubmit}
+            disabled={createSessionMutation.isPending}
+            className="w-full py-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700"
+          >
+            <Users className="w-5 h-5 mr-2" />
+            Create Session & Start AI Analysis
+          </Button>
+          
+          <p className="text-center text-sm text-ios-gray-2">
+            After creating the session, you'll be able to start the AI mediation process
+          </p>
+        </div>
       </div>
 
       {/* Loading Modal */}

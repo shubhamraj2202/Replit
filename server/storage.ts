@@ -1,26 +1,25 @@
-import { users, sessions, type User, type InsertUser, type Session, type InsertSession } from "@shared/schema";
+import { users, scans, type User, type InsertUser, type Scan, type InsertScan } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  createSession(session: InsertSession): Promise<Session>;
-  getRecentSessions(limit?: number): Promise<Session[]>;
-  getSession(id: number): Promise<Session | undefined>;
-  updateSession(id: number, updates: Partial<InsertSession>): Promise<Session | undefined>;
+  createScan(scan: InsertScan): Promise<Scan>;
+  getRecentScans(limit?: number): Promise<Scan[]>;
+  getScan(id: number): Promise<Scan | undefined>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
-  private sessions: Map<number, Session>;
+  private scans: Map<number, Scan>;
   private currentUserId: number;
-  private currentSessionId: number;
+  private currentScanId: number;
 
   constructor() {
     this.users = new Map();
-    this.sessions = new Map();
+    this.scans = new Map();
     this.currentUserId = 1;
-    this.currentSessionId = 1;
+    this.currentScanId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -40,42 +39,27 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async createSession(insertSession: InsertSession): Promise<Session> {
-    const id = this.currentSessionId++;
-    const session: Session = { 
-      ...insertSession,
+  async createScan(insertScan: InsertScan): Promise<Scan> {
+    const id = this.currentScanId++;
+    const scan: Scan = { 
+      ...insertScan,
+      imageUrl: insertScan.imageUrl || null,
       id,
-      createdAt: new Date(),
-      status: insertSession.status || "active",
-      aiResolution: insertSession.aiResolution || null,
-      actionItems: insertSession.actionItems || null,
-      fairnessScore: insertSession.fairnessScore || null
+      createdAt: new Date()
     };
-    this.sessions.set(id, session);
-    return session;
+    this.scans.set(id, scan);
+    return scan;
   }
 
-  async getRecentSessions(limit: number = 10): Promise<Session[]> {
-    const allSessions = Array.from(this.sessions.values());
-    return allSessions
+  async getRecentScans(limit: number = 10): Promise<Scan[]> {
+    const allScans = Array.from(this.scans.values());
+    return allScans
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, limit);
   }
 
-  async getSession(id: number): Promise<Session | undefined> {
-    return this.sessions.get(id);
-  }
-
-  async updateSession(id: number, updates: Partial<InsertSession>): Promise<Session | undefined> {
-    const existingSession = this.sessions.get(id);
-    if (!existingSession) return undefined;
-    
-    const updatedSession: Session = {
-      ...existingSession,
-      ...updates
-    };
-    this.sessions.set(id, updatedSession);
-    return updatedSession;
+  async getScan(id: number): Promise<Scan | undefined> {
+    return this.scans.get(id);
   }
 }
 
