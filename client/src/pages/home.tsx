@@ -1,83 +1,32 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Camera, Images, Leaf, Lightbulb, ChevronRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Clock, Heart, Users, Scale, Plus, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { IOSStatusBar } from '@/components/ui/ios-status-bar';
-import { LoadingModal } from '@/components/ui/loading-modal';
-import { analyzeImage, getRecentScans, type ScanResult } from '@/lib/gemini';
-import { useToast } from '@/hooks/use-toast';
+import { getRecentSessions, type MediationResult } from '@/lib/gemini';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  const openCamera = () => {
-    if (cameraInputRef.current) {
-      cameraInputRef.current.click();
-    }
-  };
-
-  const openGallery = () => {
-    if (galleryInputRef.current) {
-      galleryInputRef.current.click();
-    }
-  };
-
-  // Fetch recent scans
-  const { data: recentScans = [], isLoading } = useQuery({
-    queryKey: ['/api/scans'],
-    queryFn: getRecentScans,
+  // Fetch recent sessions
+  const { data: recentSessions = [], isLoading } = useQuery({
+    queryKey: ['/api/sessions'],
+    queryFn: getRecentSessions,
   });
-
-  // Analyze image mutation
-  const analyzeMutation = useMutation({
-    mutationFn: analyzeImage,
-    onMutate: () => {
-      setIsAnalyzing(true);
-    },
-    onSuccess: (result) => {
-      setIsAnalyzing(false);
-      queryClient.invalidateQueries({ queryKey: ['/api/scans'] });
-      setLocation(`/scan/${result.id}`);
-      toast({
-        title: "Analysis Complete!",
-        description: `Food analyzed: ${result.isVegan ? 'Vegan' : 'Not Vegan'}`,
-      });
-    },
-    onError: (error) => {
-      setIsAnalyzing(false);
-      toast({
-        title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Failed to analyze image. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleImageCapture = (file: File) => {
-    console.log('Camera file selected:', file);
-    analyzeMutation.mutate(file);
-  };
-
-  const handleImageSelect = (file: File) => {
-    console.log('Gallery file selected:', file);
-    analyzeMutation.mutate(file);
-  };
 
   const navigateToHistory = () => {
     setLocation('/history');
   };
 
-  const navigateToScan = (scanId: number) => {
-    setLocation(`/scan/${scanId}`);
+  const navigateToSession = (sessionId: number) => {
+    setLocation(`/session/${sessionId}`);
+  };
+
+  const startNewSession = () => {
+    setLocation('/new-session');
   };
 
   return (
@@ -88,7 +37,7 @@ export default function Home() {
       <div className="bg-white border-b border-ios-gray-5 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="w-6"></div>
-          <h1 className="text-xl font-bold text-center">Is It Vegie?</h1>
+          <h1 className="text-xl font-bold text-center">PeaceKeeper AI</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -104,69 +53,51 @@ export default function Home() {
       <div className="px-6 py-6 space-y-6">
         
         {/* Welcome Card */}
-        <Card className="bg-gradient-to-br from-green-500 to-green-400 border-0 rounded-ios-lg text-white">
+        <Card className="bg-gradient-to-br from-blue-500 to-green-400 border-0 rounded-ios-lg text-white">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <Leaf className="w-6 h-6" />
+                <Heart className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Scan Your Food</h2>
-                <p className="text-white text-opacity-90 text-sm">Instantly check if it's vegan-friendly</p>
+                <h2 className="text-xl font-bold">Resolve Conflicts</h2>
+                <p className="text-white text-opacity-90 text-sm">AI-powered mediation for peaceful solutions</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Scan Options Card */}
+        {/* Start Session Card */}
         <Card className="rounded-ios-lg border border-ios-gray-5">
           <CardContent className="p-0">
             <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold mb-4">Choose Scan Method</h3>
+              <h3 className="text-lg font-semibold mb-4">Start New Session</h3>
             </div>
             
-            {/* Camera Option */}
+            {/* New Session Option */}
             <Button
               variant="ghost"
               className="w-full px-6 py-4 h-auto flex items-center gap-4 border-t border-ios-gray-5 justify-start rounded-none hover:bg-ios-gray-6"
-              onClick={openCamera}
-              disabled={isAnalyzing}
+              onClick={startNewSession}
             >
               <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                <Camera className="w-5 h-5 ios-blue" />
+                <Plus className="w-5 h-5 ios-blue" />
               </div>
               <div className="flex-1 text-left">
-                <div className="font-medium">Take Photo</div>
-                <div className="text-sm text-ios-gray-2">Capture food or ingredients</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-ios-gray-2" />
-            </Button>
-
-            {/* Gallery Option */}
-            <Button
-              variant="ghost"
-              className="w-full px-6 py-4 h-auto flex items-center gap-4 border-t border-ios-gray-5 justify-start rounded-none hover:bg-ios-gray-6"
-              onClick={openGallery}
-              disabled={isAnalyzing}
-            >
-              <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">
-                <Images className="w-5 h-5 text-purple-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium">Choose from Gallery</div>
-                <div className="text-sm text-ios-gray-2">Select existing photo</div>
+                <div className="font-medium">Begin Mediation</div>
+                <div className="text-sm text-ios-gray-2">Set up participants and context</div>
               </div>
               <ChevronRight className="w-4 h-4 text-ios-gray-2" />
             </Button>
           </CardContent>
         </Card>
 
-        {/* Recent Scans Preview */}
-        {recentScans.length > 0 && (
+        {/* Recent Sessions Preview */}
+        {recentSessions.length > 0 && (
           <Card className="rounded-ios-lg border border-ios-gray-5">
             <CardContent className="p-0">
               <div className="p-6 pb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Recent Scans</h3>
+                <h3 className="text-lg font-semibold">Recent Sessions</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -177,30 +108,30 @@ export default function Home() {
                 </Button>
               </div>
               
-              {recentScans.slice(0, 3).map((scan) => (
+              {recentSessions.slice(0, 3).map((session) => (
                 <Button
-                  key={scan.id}
+                  key={session.id}
                   variant="ghost"
                   className="w-full px-6 py-3 h-auto flex items-center gap-4 border-t border-ios-gray-5 justify-start rounded-none hover:bg-ios-gray-6"
-                  onClick={() => navigateToScan(scan.id)}
+                  onClick={() => navigateToSession(session.id)}
                 >
                   <div className="w-12 h-12 bg-ios-gray-6 rounded-lg flex items-center justify-center">
-                    <Leaf className="w-6 h-6 text-ios-gray-2" />
+                    <Users className="w-6 h-6 text-ios-gray-2" />
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="font-medium text-sm">{scan.foodName}</div>
+                    <div className="font-medium text-sm">{session.relationshipContext} - {session.argumentCategory}</div>
                     <div className="text-xs text-ios-gray-2">
-                      {formatDistanceToNow(scan.createdAt, { addSuffix: true })}
+                      {formatDistanceToNow(session.createdAt, { addSuffix: true })}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className={`px-2 py-1 rounded-full ${
-                      scan.isVegan 
+                      session.status === 'resolved' 
                         ? 'bg-green-50 text-green-600' 
-                        : 'bg-red-50 text-red-600'
+                        : 'bg-orange-50 text-orange-600'
                     }`}>
                       <span className="text-xs font-medium">
-                        {scan.isVegan ? '✓ Vegan' : '✗ Not Vegan'}
+                        {session.status === 'resolved' ? '✓ Resolved' : '⚡ Active'}
                       </span>
                     </div>
                   </div>
@@ -215,51 +146,19 @@ export default function Home() {
           <CardContent className="p-6">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <Lightbulb className="w-4 h-4 ios-blue" />
+                <Scale className="w-4 h-4 ios-blue" />
               </div>
               <div>
                 <h4 className="font-semibold text-sm mb-2">Pro Tip</h4>
                 <p className="text-sm text-ios-gray-2 leading-relaxed">
-                  For best results, ensure ingredients lists are clearly visible and well-lit. 
-                  Our AI can analyze both whole foods and ingredient labels!
+                  For best results, encourage all participants to share their perspectives honestly. 
+                  Our AI analyzes emotions and provides balanced, fair solutions for everyone.
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Hidden file inputs */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        style={{ display: 'none' }}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            handleImageCapture(file);
-            e.target.value = '';
-          }
-        }}
-      />
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            handleImageSelect(file);
-            e.target.value = '';
-          }
-        }}
-      />
-
-      {/* Loading Modal */}
-      <LoadingModal isOpen={isAnalyzing} />
     </>
   );
 }

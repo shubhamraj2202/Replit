@@ -1,0 +1,87 @@
+Create a native iOS app called "PeaceKeeper AI" - an intelligent argument resolver and mediator using SwiftUI and iOS 17+.
+
+**App Requirements:**
+- **Core Function:** Listen to multiple people in a dispute and provide AI-powered mediation and resolution suggestions
+- **Target:** Families, couples, roommates, coworkers who need help resolving conflicts constructively
+- **Design:** Calming, neutral interface with peaceful colors (soft blues/greens) following Apple's Human Interface Guidelines
+
+**Key Features:**
+1. **Multi-Person Session Setup:** 
+   - Add 2-6 participants with names and profile photos
+   - Set relationship context (family, romantic, workplace, friends, roommates)
+   - Choose argument category (household, financial, time management, responsibilities, etc.)
+
+2. **Input Methods:**
+   - **Voice Mode:** Each person speaks in turns with visual timer
+   - **Text Mode:** Type individual perspectives 
+   - **Live Mode:** Real-time conversation recording with speaker identification
+   - Turn indicator system showing whose turn it is to speak
+
+3. **AI Mediation Engine:**
+   - Integration with Google Gemini AI for conflict analysis
+   - Process all perspectives simultaneously 
+   - Analyze emotional tone and underlying concerns
+   - Identify root causes vs surface complaints
+   - Generate fair, actionable resolution suggestions
+
+4. **Resolution Output:**
+   - AI speaks solutions back using AVSpeechSynthesizer
+   - Written summary with specific action items for each person
+   - "Fairness Score" showing balance of compromise
+   - Common ground identification
+   - Follow-up questions to clarify misunderstandings
+
+5. **Smart Analysis Features:**
+   - Emotional state detection in voice/text
+   - Pattern recognition for recurring argument types
+   - Relationship-specific mediation strategies
+   - Cultural sensitivity considerations
+
+**Technical Specifications:**
+- SwiftUI with AVFoundation for audio recording/playback
+- Speech recognition using SFSpeechRecognizer
+- Text-to-speech with AVSpeechSynthesizer
+- URLSession for Gemini AI API integration
+- CoreData for session history and user profiles
+- Real-time audio processing and speaker separation
+
+**AI Prompt Engineering:**
+Use structured prompts like: "You are an expert mediator. Analyze this dispute between [relationship context]. Person A says: [input]. Person B says: [input]. Identify: 1) Core issues 2) Each person's valid concerns 3) Compromise solutions 4) Action steps. Respond with empathy and fairness."
+
+**UI Structure:**
+1. **Home Screen:** Start new session, view past resolutions, relationship quick-select
+2. **Setup Screen:** Add participants, set context, choose input method
+3. **Recording Screen:** Turn-based interface with visual timers, emotion indicators, pause/replay controls
+4. **Analysis Screen:** Loading animation while AI processes, "Thinking..." states
+5. **Resolution Screen:** AI-generated solution with speak-aloud option, action items checklist
+6. **History Screen:** Archive of past disputes and their resolutions, success tracking
+
+**Data Models:**
+- Participant (name, photo, role in relationship)
+- Session (participants, context, argument category, timestamp)
+- Resolution (AI suggestions, action items, fairness score, follow-up needed)
+- Relationship template (family dynamics, workplace hierarchy, etc.)
+
+**Privacy & Ethics:**
+- All audio/text processed locally when possible
+- No permanent cloud storage of personal disputes
+- Clear data deletion options
+- Bias detection in AI responses
+- Option to rate resolution effectiveness
+
+**Advanced Features:**
+- Cooling-off period timer before starting session
+- Emotion regulation breathing exercises
+- Success rate tracking for relationship improvement
+- Integration with calendar for follow-up check-ins
+- Export resolution summaries to Notes app
+
+**Include:**
+- Microphone and speech recognition permissions
+- Offline mode for basic text mediation
+- Accessibility support for hearing impaired users
+- Multiple language support
+- Dark mode with calming color schemes
+- Haptic feedback for turn transitions
+
+Please provide complete Swift code with all necessary files, including Info.plist permissions for microphone access and proper error handling for API failures.
