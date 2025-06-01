@@ -1,20 +1,31 @@
 import { apiRequest } from './queryClient';
 
-export interface ScanResult {
+export interface MediationResult {
   id: number;
-  foodName: string;
-  isVegan: boolean;
-  analysis: string;
-  confidence: number;
-  imageUrl?: string | null;
+  relationshipContext: string;
+  argumentCategory: string;
+  participants: Array<{
+    name: string;
+    role?: string;
+    perspective: string;
+  }>;
+  aiResolution?: string;
+  actionItems?: string[];
+  fairnessScore?: number;
+  status: string;
   createdAt: Date;
 }
 
-export async function analyzeImage(imageFile: File): Promise<ScanResult> {
-  const formData = new FormData();
-  formData.append('image', imageFile);
-
-  const response = await apiRequest('POST', '/api/analyze', formData);
+export async function createMediationSession(sessionData: {
+  relationshipContext: string;
+  argumentCategory: string;
+  participants: Array<{
+    name: string;
+    role?: string;
+    perspective: string;
+  }>;
+}): Promise<MediationResult> {
+  const response = await apiRequest('POST', '/api/sessions', sessionData);
   const result = await response.json();
   
   return {
@@ -23,22 +34,32 @@ export async function analyzeImage(imageFile: File): Promise<ScanResult> {
   };
 }
 
-export async function getRecentScans(): Promise<ScanResult[]> {
-  const response = await apiRequest('GET', '/api/scans');
-  const scans = await response.json();
+export async function getMediationResult(sessionId: number): Promise<MediationResult> {
+  const response = await apiRequest('POST', `/api/sessions/${sessionId}/resolve`);
+  const result = await response.json();
   
-  return scans.map((scan: any) => ({
-    ...scan,
-    createdAt: new Date(scan.createdAt)
+  return {
+    ...result,
+    createdAt: new Date(result.createdAt)
+  };
+}
+
+export async function getRecentSessions(): Promise<MediationResult[]> {
+  const response = await apiRequest('GET', '/api/sessions');
+  const sessions = await response.json();
+  
+  return sessions.map((session: any) => ({
+    ...session,
+    createdAt: new Date(session.createdAt)
   }));
 }
 
-export async function getScan(id: number): Promise<ScanResult> {
-  const response = await apiRequest('GET', `/api/scans/${id}`);
-  const scan = await response.json();
+export async function getSession(id: number): Promise<MediationResult> {
+  const response = await apiRequest('GET', `/api/sessions/${id}`);
+  const session = await response.json();
   
   return {
-    ...scan,
-    createdAt: new Date(scan.createdAt)
+    ...session,
+    createdAt: new Date(session.createdAt)
   };
 }
