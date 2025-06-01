@@ -79,7 +79,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       // Build mediation prompt
-      const participantSummary = session.participants.map((p: any, index: number) => 
+      const participants = session.participants as Array<{name: string, role?: string, perspective: string}>;
+      const participantSummary = participants.map((p, index: number) => 
         `Person ${index + 1} (${p.name}${p.role ? `, ${p.role}` : ''}): "${p.perspective}"`
       ).join('\n\n');
 
